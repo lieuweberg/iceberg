@@ -4,11 +4,15 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"strconv"
+	"strings"
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/lieuweberg/iceberg/util"
+	
+	// Importing the commands package makes them self-register due to their init function being run,
+	// but we don't actually need the package itself (due to self-registering)
+	_ "github.com/lieuweberg/iceberg/commands"
 )
 
 var (
@@ -16,7 +20,7 @@ var (
 )
 
 func init() {
-	configuration, err := util.Config()
+	configuration, err := util.LoadConfig()
 	if err != nil {
 		panic(err)
 	}
@@ -54,26 +58,14 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	channel, err := s.Channel(m.ChannelID)
-	if err != nil {
-		fmt.Println(err.Error())
-		_, err = s.ChannelMessageSend(m.ChannelID, "Error getting this channel, please try again")
-		if err != nil {
-			fmt.Println(err.Error())
-		}
+	if c, err := s.State.Channel(m.ChannelID); err != nil || c.Type != discordgo.ChannelTypeGuildText {
 		return
 	}
 
-	if channel.Type != discordgo.ChannelTypeGuildText {
-		return
-	}
+	prefix := "go!"
+	m.Content = m.Content[len(prefix):]
+	message := strings.Split(m.Content, " ")
 
-	if m.Content == "go!ping" {
-		_, err = s.ChannelMessageSend(m.ChannelID, "Pong! :D " + strconv.Itoa(int(s.HeartbeatLatency().Milliseconds())) + "ms")
-		if err != nil {
-			fmt.Println(err.Error())
-		}
-
-		return
-	}
+	util.RunCommand(message[0], s, m)
+	return
 }
