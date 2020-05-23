@@ -1,8 +1,6 @@
 package util
 
-import (
-	"github.com/bwmarrin/discordgo"
-)
+import "github.com/bwmarrin/discordgo"
 
 // Command is the command struct with the data that should be filled in
 type Command struct {
@@ -31,11 +29,15 @@ func RegisterCommand(c Command) {
 // It will return and error if there is any in command execution (essentially forwarding it),
 // but if a command is not found it will not return an error since that is not needed.
 func RunCommand(commandName string, s *discordgo.Session, m *discordgo.MessageCreate) (err error) {
-	for name, command := range commands {
-		if alias := aliases[commandName]; commandName == alias || commandName == name {
-			err = command.Run(s, m)
-			return
-		}
+	if c, ok := commands[commandName]; ok {
+		err = c.Run(s, m)
+		return
 	}
+
+	if c, ok := aliases[commandName]; ok {
+		err = commands[c].Run(s, m)
+		return
+	}
+	
 	return
 }
