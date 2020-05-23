@@ -63,9 +63,19 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	prefix := "go!"
+	if m.Content[:len(prefix)] != prefix {
+		return
+	}
 	m.Content = m.Content[len(prefix):]
 	message := strings.Split(m.Content, " ")
 
-	util.RunCommand(message[0], s, m)
+	err := util.RunCommand(message[0], s, m)
+	if err != nil {
+		_, err = s.ChannelMessageSend(m.ChannelID, "An error occured during execution.\n" + err.Error())
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+
 	return
 }

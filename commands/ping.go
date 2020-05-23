@@ -10,11 +10,11 @@ import (
 func init() {
 	util.RegisterCommand(util.Command{
 		Name: "ping",
-		Run: command,
+		Run: ping,
 	})
 }
 
-func command(s *discordgo.Session, m *discordgo.MessageCreate) (err error) {
+func ping(s *discordgo.Session, m *discordgo.MessageCreate) (err error) {
 	s.ChannelMessageSend(m.ChannelID, "Pong! " + strconv.Itoa(int(s.HeartbeatLatency().Milliseconds())) + "ms :stopwatch:")
 	return
 }
