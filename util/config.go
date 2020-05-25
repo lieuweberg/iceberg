@@ -5,19 +5,23 @@ import (
 	"io/ioutil"
 )
 
-// Configuration is the config.json file, but as a struct
-type Configuration struct {
+// Config is the config.json but as a struct
+var Config *configuration
+
+type configuration struct {
 	Token string `json:"token"`
 }
 
-// LoadConfig returns a Configuration struct and an error if there was one
-func LoadConfig() (configuration Configuration, err error) {
+func init() {
 	data, err := ioutil.ReadFile("config.json")
 	if err != nil {
-		return
+		panic(err)
 	}
 
-	err = json.Unmarshal(data, &configuration)
+	err = json.Unmarshal(data, &Config)
+	if err != nil {
+		panic(err)
+	}
 
 	return
 }

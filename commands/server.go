@@ -47,7 +47,7 @@ type queryCache struct {
 }
 var cache queryCache
 
-func server(s *discordgo.Session, m *discordgo.MessageCreate) (error) {
+func server(s *discordgo.Session, m *discordgo.MessageCreate) (err error) {
 	query := &serverQuery{}
 	var footer string
 	if cache.lastQuery == nil || time.Now().Unix() - cache.lastUpdated > 300 {
@@ -99,12 +99,14 @@ func server(s *discordgo.Session, m *discordgo.MessageCreate) (error) {
 
 	lastUpdated, err := strconv.Atoi(query.LastUpdated)
 	if err != nil {
-		return err
+		return
 	}
 	lastUpdated = int(time.Now().Unix()) - lastUpdated
 	var lastUpdatedFormatted string
 	if lastUpdated >= 60 {
-		if lastUpdated % 60 == 0 {
+		if lastUpdated < 1 {
+			lastUpdatedFormatted = "Just now"
+		} else if lastUpdated % 60 == 0 {
 			lastUpdatedFormatted = strconv.Itoa(lastUpdated/60) + " minutes ago"
 		} else {
 			lastUpdatedFormatted = strconv.Itoa(lastUpdated/60) + " minutes and " + strconv.Itoa(lastUpdated%60) + " seconds ago"
