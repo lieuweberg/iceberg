@@ -9,18 +9,20 @@ import (
 var Config *configuration
 
 type configuration struct {
-	Token string `json:"token"`
+	Token  string `json:"token"` 
+	Prefix string `json:"prefix"`
 }
+
 
 func init() {
 	data, err := ioutil.ReadFile("config.json")
 	if err != nil {
-		panic(err)
+		panic(err.Error())
 	}
 
 	err = json.Unmarshal(data, &Config)
 	if err != nil {
-		panic(err)
+		panic(err.Error())
 	}
 
 	return
