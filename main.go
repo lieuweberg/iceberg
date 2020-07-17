@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"strings"
@@ -14,12 +14,14 @@ import (
 	// Importing the commands package makes them self-register due to their init function being run,
 	// but we don't actually need the package itself (due to self-registering)
 	_ "github.com/lieuweberg/iceberg/commands"
+	// Same thing but for the database
+	_ "github.com/lieuweberg/iceberg/util/db"
 )
 
 func main() {
 	s, err := discordgo.New("Bot " + util.Config.Token)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Fatalf("Couldn't create session: %s", err)
 		return
 	}
 
@@ -30,30 +32,30 @@ func main() {
 
 	err = s.Open()
 	if err != nil {
-		panic(err.Error())
+		log.Fatalf("Couldn't create WS: %s", err)
 	}
 
 	// Wait for os terminate events, cleanly close connection when encountered
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGTERM, syscall.SIGINT, os.Interrupt, os.Kill)
 	<-sc
-	fmt.Println("OS termination received, closing WS")
+	log.Print("OS termination received, closing WS")
 	s.Close()
-	fmt.Println("Connection closed, bye bye")
+	log.Print("Connection closed, bye bye")
 }
 
 func ready(s *discordgo.Session, e *discordgo.Ready) {
-	fmt.Printf("Iceberg is online!\n")
-
 	u, err := s.User("@me")
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err)
 	}
 
 	err = util.LavalinkSetup(u.ID)
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err)
 	}
+
+	log.Print("Iceberg is online!\n")
 }
 
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -74,10 +76,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	err = util.RunCommand(message[0], s, m)
 	if err != nil {
-		_, err = s.ChannelMessageSend(m.ChannelID, "An error occured during execution.\n"+err.Error())
-		if err != nil {
-			fmt.Println(err.Error())
-		}
+		s.ChannelMessageSend(m.ChannelID, "An error occured during execution.\n"+err.Error())
 	}
 }
 
@@ -89,19 +88,18 @@ func voiceStateUpdate(s *discordgo.Session, e *discordgo.VoiceStateUpdate) {
 
 	guild, err := s.State.Guild(e.GuildID)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Printf("No guild found in State for %s: %s", e.GuildID, err)
 		return
 	}
 	if util.GetUsersInVoice(guild) == 0 {
-		fmt.Println("removing player")
 		ms.SongEnd <- "end"
 		player := ms.Player;
 		delete(util.Music, e.GuildID)
 		if err = player.Destroy(); err != nil {
-			fmt.Println(err)
+			log.Printf("Error destroying player for %s: %s", guild.ID, err)
 		}
 		if err = s.ChannelVoiceJoinManual(e.GuildID, "", false, false); err != nil {
-			fmt.Println(err)
+			log.Printf("Couldn't join voice channel for %s: %s", guild.ID, err)
 		}
 		return
 	}
@@ -118,24 +116,23 @@ func voiceServerUpdate(s *discordgo.Session, e *discordgo.VoiceServerUpdate) {
 	if ok && ms.Player != nil {
 		err := ms.Player.Forward(s.State.SessionID, vsu)
 		if err != nil {
-			fmt.Println(err.Error())
+			log.Printf("Player not forwarded for %s: %s", e.GuildID, err)
 		}
 		return
 	}
 
 	node, err := util.Lavalink.BestNode()
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Printf("Couldn't find best node: %s", err)
 		return
 	}
 
 	handler := new(util.EventHandler)
 	player, err := node.CreatePlayer(e.GuildID, s.State.SessionID, vsu, handler)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Printf("Couldn't create player for %s: %s", e.GuildID, err)
 		return
 	}
 
 	util.Music[e.GuildID].Player = player
-	fmt.Println("adding player")
 }

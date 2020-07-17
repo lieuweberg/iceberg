@@ -3,6 +3,7 @@ package util
 import (
 	"encoding/json"
 	"io/ioutil"
+	"log"
 )
 
 // Config is the config.json but as a struct
@@ -17,12 +18,12 @@ type configuration struct {
 func init() {
 	data, err := ioutil.ReadFile("config.json")
 	if err != nil {
-		panic(err.Error())
+		log.Fatalf("Trouble opening the config: %s", err)
 	}
 
 	err = json.Unmarshal(data, &Config)
 	if err != nil {
-		panic(err.Error())
+		log.Fatalf("Trouble parsing the config: %s", err)
 	}
 
 	return

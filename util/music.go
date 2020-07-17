@@ -1,7 +1,7 @@
 package util
 
 import (
-	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/bwmarrin/discordgo"
@@ -87,7 +87,7 @@ func (eh EventHandler) OnTrackEnd(player *gavalink.Player, track string, reason 
 
 // OnTrackException is raised when a track throws an exception
 func (eh EventHandler) OnTrackException(player *gavalink.Player, track string, reason string) (err error) {
-	fmt.Println(reason)
+	log.Printf("Track exception for %s: %s", player.GuildID, reason)
 	if ms, ok := Music[player.GuildID()]; ok {
 		ms.SongEnd <- reason
 	}

@@ -1,4 +1,5 @@
 config.json
-*.exe
-iceberg
 .lavalink
+
+*.exe
+*.db

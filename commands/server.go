@@ -104,13 +104,13 @@ func server(s *discordgo.Session, m *discordgo.MessageCreate) (err error) {
 	lastUpdated = int(time.Now().Unix()) - lastUpdated
 	var lastUpdatedFormatted string
 	if lastUpdated >= 60 {
-		if lastUpdated < 2 {
-			lastUpdatedFormatted = "Just now"
-		} else if lastUpdated % 60 == 0 {
+		if lastUpdated % 60 == 0 {
 			lastUpdatedFormatted = strconv.Itoa(lastUpdated/60) + " minutes ago"
 		} else {
 			lastUpdatedFormatted = strconv.Itoa(lastUpdated/60) + " minutes and " + strconv.Itoa(lastUpdated%60) + " seconds ago"
 		}
+	} else if lastUpdated < 2 {
+		lastUpdatedFormatted = "Just now"
 	} else {
 		lastUpdatedFormatted = strconv.Itoa(lastUpdated) + " seconds ago"
 	}

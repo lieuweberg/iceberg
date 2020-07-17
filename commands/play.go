@@ -130,10 +130,8 @@ func queueSong(s *discordgo.Session, m *discordgo.MessageCreate, track gavalink.
 }
 
 func playSong(s *discordgo.Session, m *discordgo.MessageCreate, song util.Song, ms *util.MusicStruct, startTime int) (err error) {
-	fmt.Println("attempting to play", song.Track.Info.Title)
 	if startTime < 0 {
 		err = ms.Player.Play(song.Track.Data)
-		fmt.Println("playing", song.Track.Info.Title)
 	} else {
 		err = ms.Player.PlayAt(song.Track.Data, startTime, song.Track.Info.Length)
 	}
@@ -148,7 +146,6 @@ func playSong(s *discordgo.Session, m *discordgo.MessageCreate, song util.Song, 
 	_, err = s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(":musical_note: Now playing: **%s** *(requested by %s)*", song.Track.Info.Title, song.Requester))
 
 	end := <- ms.SongEnd
-	fmt.Println(end)
 	if end == "next" {
 		err = playSong(s, m, ms.Queue[0], ms, -1)
 	} else if end == "end" {
