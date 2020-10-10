@@ -1,4 +1,4 @@
-# Iceberg
+# Iceberg 🧊
 
 ![](https://i.imgur.com/bn7PSv0.png)
 
@@ -6,7 +6,7 @@ Iceberg is a Discord bot created for the BlockHermit server. It has music, name 
 
 Note: this is the rewrite and is still in development. Feel free to contribute as below.
 
-## Contributing
+## Contributing ✨
 Any contributions are welcome. From grammar corrections to entirely new features or just prettifying some commands.
 
 > If you plan to add new features (commands, subcommands, something small, etc.) **PLEASE** [create an issue](https://github.com/lieuweberg/iceberg/issues/new) first. Give it a fitting title and a nice description explaining what it will do and why it would be good to add. It would be a bummer if you make something but then it's not even added.
@@ -25,7 +25,7 @@ If you don't really know how pull requests work, see these steps:
    - Follow [this guide](http://www.dasblinkenlichten.com/how-to-create-a-github-pull-request-pr/) for actually making the pull request. See the step below when the guide talks about making your changes.
      - Make your changes. Thorougly test your changes with different inputs etc. Please follow a similar code style as seen in other files (for a quick example, see `pause.go`).
 
-## Running the bot
+## Running the bot 🚒
  1. Firstly, install [Go](https://golang.org/dl/). Make sure you download a version that is fairly new (1.14+) just so it all works.
  2. Make sure you have a Java version installed that is higher than 1.11. There currently is no way to run the bot without music, and thus without Java.
  3. Also install a GCC compiler if you don't have one already (try running `gcc` in a command prompt).
@@ -48,5 +48,5 @@ If you don't really know how pull requests work, see these steps:
  go run main.go
  ```
 
- # License
+ ## License 🔑
  See the `LICENSE` file
