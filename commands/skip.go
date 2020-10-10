@@ -22,15 +22,15 @@ func skip(s *discordgo.Session, m *discordgo.MessageCreate) (err error) {
 			return nil
 		}
 
-		if isInVoice := util.IsInVoice(guild, m.Author.ID); !isInVoice {
-			_, err = s.ChannelMessageSend(m.ChannelID, "You're not in the music channel.")
+		if isInVoice := util.IsInVoiceWithMusic(guild, m.Author.ID); !isInVoice {
+			_, err = s.ChannelMessageSend(m.ChannelID, "You're not listening to my music :(")
 			return nil
 		}
 
 		usersInVoice := math.Floor(float64(util.GetUsersInVoice(guild) / 2))
 		skips := ms.Queue[0].Skips
-		requirementFloat := (skips + 1) / float64(usersInVoice)
-		if usersInVoice <= 2 || requirementFloat >= 0.4 {
+		requirement := (skips + 1) / float64(usersInVoice)
+		if usersInVoice <= 2 || requirement >= 0.4 {
 			ms.Player.Stop()
 		} else {
 			skips++

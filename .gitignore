@@ -1,5 +1,6 @@
 config.json
-.lavalink
+.lavalink/logs
+.lavalink/Lavalink.jar
 
 *.exe
 *.db

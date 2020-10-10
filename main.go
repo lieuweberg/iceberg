@@ -55,7 +55,7 @@ func ready(s *discordgo.Session, e *discordgo.Ready) {
 		log.Fatal(err)
 	}
 
-	log.Print("Iceberg is online!\n")
+	log.Println("Iceberg is online!")
 }
 
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -93,13 +93,8 @@ func voiceStateUpdate(s *discordgo.Session, e *discordgo.VoiceStateUpdate) {
 	}
 	if util.GetUsersInVoice(guild) == 0 {
 		ms.SongEnd <- "end"
-		player := ms.Player;
-		delete(util.Music, e.GuildID)
-		if err = player.Destroy(); err != nil {
-			log.Printf("Error destroying player for %s: %s", guild.ID, err)
-		}
-		if err = s.ChannelVoiceJoinManual(e.GuildID, "", false, false); err != nil {
-			log.Printf("Couldn't join voice channel for %s: %s", guild.ID, err)
+		if returnedMessage := util.LeaveAndDestroy(s, e.GuildID); returnedMessage != "" {
+			log.Print(returnedMessage)
 		}
 		return
 	}
@@ -114,8 +109,7 @@ func voiceServerUpdate(s *discordgo.Session, e *discordgo.VoiceServerUpdate) {
 
 	ms, ok := util.Music[e.GuildID]
 	if ok && ms.Player != nil {
-		err := ms.Player.Forward(s.State.SessionID, vsu)
-		if err != nil {
+		if err := ms.Player.Forward(s.State.SessionID, vsu); err != nil {
 			log.Printf("Player not forwarded for %s: %s", e.GuildID, err)
 		}
 		return
@@ -135,4 +129,5 @@ func voiceServerUpdate(s *discordgo.Session, e *discordgo.VoiceServerUpdate) {
 	}
 
 	util.Music[e.GuildID].Player = player
+	ms.PlayerCreated <- true
 }

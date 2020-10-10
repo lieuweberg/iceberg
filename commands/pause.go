@@ -19,8 +19,8 @@ func pause(s *discordgo.Session, m *discordgo.MessageCreate) (err error) {
 		if err != nil {
 			return err
 		}
-		if isInVoice := util.IsInVoice(guild, m.Author.ID); !isInVoice {
-			_, err = s.ChannelMessageSend(m.ChannelID, "You're not in the music channel.")
+		if isInVoice := util.IsInVoiceWithMusic(guild, m.Author.ID); !isInVoice {
+			_, err = s.ChannelMessageSend(m.ChannelID, "You're not listening to my music :(")
 			return nil
 		}
 		err = ms.Player.Pause(!ms.Player.Paused())

@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 
@@ -17,7 +18,10 @@ var Music map[string]*MusicStruct
 type MusicStruct struct {
 	ChannelID string
 	Queue []Song
+	// "next": skip song, "end": end playback, "resume:TIME", resumes from time (used when track is stuck)
 	SongEnd chan string
+
+	PlayerCreated chan bool
 	Player *gavalink.Player
 }
 
@@ -58,14 +62,27 @@ func GetUsersInVoice(guild *discordgo.Guild) int {
 	return usersInVoice - 1
 }
 
-// IsInVoice checks if a user is in the same voice channel as where music is playing
-func IsInVoice(guild *discordgo.Guild, userID string) bool {
+// IsInVoiceWithMusic checks if a user is in the same voice channel as where music is playing
+func IsInVoiceWithMusic(guild *discordgo.Guild, userID string) bool {
 	for _, vs := range guild.VoiceStates {
 		if Music[guild.ID].ChannelID == vs.ChannelID && userID == vs.UserID {
 			return true
 		}
 	}
 	return false
+}
+
+// LeaveAndDestroy leaves the voice channel and destroys the player and queue
+func LeaveAndDestroy(s* discordgo.Session, guildID string) string {
+	player := Music[guildID].Player;
+	delete(Music, guildID)
+	if err := player.Destroy(); err != nil {
+		return fmt.Sprintf("Error destroying player for %s: %s", guildID, err)
+	}
+	if err := s.ChannelVoiceJoinManual(guildID, "", false, false); err != nil {
+		return fmt.Sprintf("Couldn't leave voice channel for %s: %s", guildID, err)
+	}
+	return ""
 }
 
 // EventHandler handles Lavalink track events
@@ -87,7 +104,7 @@ func (eh EventHandler) OnTrackEnd(player *gavalink.Player, track string, reason 
 
 // OnTrackException is raised when a track throws an exception
 func (eh EventHandler) OnTrackException(player *gavalink.Player, track string, reason string) (err error) {
-	log.Printf("Track exception for %s: %s", player.GuildID, reason)
+	log.Printf("Track exception for %s: %s", player.GuildID(), reason)
 	if ms, ok := Music[player.GuildID()]; ok {
 		ms.SongEnd <- reason
 	}

@@ -55,6 +55,7 @@ func play(s *discordgo.Session, m *discordgo.MessageCreate) (err error) {
 			}
 		}
 	}
+
 	if !alreadyInSameVoice {
 		if !alreadyInVoice {
 			err := s.ChannelVoiceJoinManual(m.GuildID, userVoiceState.ChannelID, false, false)
@@ -66,10 +67,11 @@ func play(s *discordgo.Session, m *discordgo.MessageCreate) (err error) {
 				ChannelID: userVoiceState.ChannelID,
 				Queue: make([]util.Song, 0),
 				SongEnd: make(chan string),
+				PlayerCreated: make(chan bool),
 			}
 			ms = util.Music[m.GuildID]
 		} else {
-			_, err = s.ChannelMessageSend(m.ChannelID, "I am already in a different voice channel, not switching.")
+			_, err = s.ChannelMessageSend(m.ChannelID, "I am already in a different voice channel; not switching.")
 			return
 		}
 	}
@@ -111,12 +113,18 @@ func play(s *discordgo.Session, m *discordgo.MessageCreate) (err error) {
 
 
 func queueSong(s *discordgo.Session, m *discordgo.MessageCreate, track gavalink.Track, ms *util.MusicStruct) (err error) {
+	justJoined := false
+	if len(ms.Queue) == 0 {
+		justJoined = true
+	}
+
 	ms.Queue = append(ms.Queue, util.Song{
 		Requester: m.Author.Username,
 		Track: track,
 	})
 
-	if len(ms.Queue) == 1 {
+	if justJoined {
+		<- ms.PlayerCreated
 		err = playSong(s, m, ms.Queue[0], ms, -1)
 		if err != nil {
 			_, err = s.ChannelMessageSend(m.ChannelID, "An error occured during song playback. Please try again.\n" + err.Error())
