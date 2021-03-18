@@ -11,20 +11,6 @@ Any contributions are welcome. From grammar corrections to entirely new features
 
 > If you plan to add new features (commands, subcommands, something small, etc.) **PLEASE** [create an issue](https://github.com/lieuweberg/iceberg/issues/new) first. Give it a fitting title and a nice description explaining what it will do and why it would be good to add. It would be a bummer if you make something but then it's not even added.
 
-If you don't really know how pull requests work, see these steps:
- - Small grammar-like changes:
-   1. Navigate to the file you wish to edit. If you want to edit multiple, please follow [this guide](http://www.dasblinkenlichten.com/how-to-create-a-github-pull-request-pr/) for submitting a pull request.
-   2. At the top of the file, click the pencil button that says "Edit this file in your fork of this project".
-   3. Make your changes, add a commit title describing the changes and click "Commit".
-   4. View the changes. If you're happy, just hit "Create pull request" and explain your changes in the title/description.
-
- - Other changes
-   - Install git (https://git-scm.com/downloads).
-   - Install an editor like [VS Code](https://code.visualstudio.com/), which has rich Go support.
-   - Follow the running the bot instructions below for setting up your environment.
-   - Follow [this guide](http://www.dasblinkenlichten.com/how-to-create-a-github-pull-request-pr/) for actually making the pull request. See the step below when the guide talks about making your changes.
-     - Make your changes. Thorougly test your changes with different inputs etc. Please follow a similar code style as seen in other files (for a quick example, see `pause.go`).
-
 ## Running the bot 🚒
  1. Firstly, install [Go](https://golang.org/dl/). Make sure you download a version that is fairly new (1.14+) just so it all works.
  2. Make sure you have a Java version installed that is higher than 1.11. There currently is no way to run the bot without music, and thus without Java.
